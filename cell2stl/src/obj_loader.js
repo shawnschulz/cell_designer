@@ -93,45 +93,24 @@ function parseOBJ(text) {
   };
 }
 
+function getIndices(array)
+{
+    let ret = []
+    for (let i = 0; i < array.length; i++){
+        ret.push(i)
+    } 
+    return ret
+}
+
 async function main() {
   // Get A WebGL context
   /** @type {HTMLCanvasElement} */
-  const canvas = document.querySelector("#canvas");
+    const canvas = document.getElementById("canvas");
+
   const gl = canvas.getContext("webgl");
   if (!gl) {
     return;
   }
-
-  const vs = `
-  attribute vec4 a_position;
-  attribute vec3 a_normal;
-
-  uniform mat4 u_projection;
-  uniform mat4 u_view;
-  uniform mat4 u_world;
-
-  varying vec3 v_normal;
-
-  void main() {
-    gl_Position = u_projection * u_view * u_world * a_position;
-    v_normal = mat3(u_world) * a_normal;
-  }
-  `;
-
-  const fs = `
-  precision mediump float;
-
-  varying vec3 v_normal;
-
-  uniform vec4 u_diffuse;
-  uniform vec3 u_lightDirection;
-
-  void main () {
-    vec3 normal = normalize(v_normal);
-    float fakeLight = dot(u_lightDirection, normal) * .5 + .5;
-    gl_FragColor = vec4(u_diffuse.rgb * fakeLight, u_diffuse.a);
-  }
-  `;
 
 
   // compiles and links the shaders, looks up attribute and uniform locations
@@ -155,6 +134,31 @@ async function main() {
   // create a buffer for each array by calling
   // gl.createBuffer, gl.bindBuffer, gl.bufferData
   //const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
+  
+  // position buffer
+  function createBuffer(gl, data) {
+      const bin_buffer = gl.createBuffer()
+
+      const bin_normal = new Float32Array(data.normal)
+//      const tex_i = getIndices(data.normal)
+      gl.bindBuffer(gl.ARRAY_BUFFER, bin_buffer)
+      gl.bufferData(gl.ARRAY_BUFFER, bin_normal, gl.STATIC_DRAW)
+
+      const tex_buffer = gl.createBuffer()
+      const bin_texture = new Float32Array(data.texcoord)
+//      const tex_i = getIndices(data.texcoord)
+      gl.bindBuffer(gl.ARRAY_BUFFER, tex_buffer)
+      gl.bufferData(gl.ARRAY_BUFFER, bin_texture, gl.STATIC_DRAW)
+      // This could be gemini hallucinating, but i think we need to use typed
+      // arrays so its actually binary data
+      
+      const pos_buffer = gl.createBuffer()
+      const bin_positions = new Float32Array(data.position)
+ //     const pos_i = getIndices(data.position)
+      gl.bindBuffer(gl.ARRAY_BUFFER, pos_buffer)
+      gl.bufferData(gl.ARRAY_BUFFER, bin_positions, gl.STATIC_DRAW)
+  }
+  createBuffer(gl, data);
 
   const cameraTarget = [0, 0, 0];
   const cameraPosition = [0, 0, 4];
@@ -169,43 +173,26 @@ async function main() {
     time *= 0.001;  // convert to seconds
 
 //    webglUtils.resizeCanvasToDisplaySize(gl.canvas);
+
+      // non-dynamic canvas size
+    gl.canvas.width = window.innerWidth;
+    gl.canvas.height = window.innerHeight;
     gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
     gl.enable(gl.DEPTH_TEST);
     gl.enable(gl.CULL_FACE);
 
-    const fieldOfViewRadians = degToRad(60);
-    const aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-    const projection = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+           // Setup the pointer to our attribute data (the triangles)
+      gl.enableVertexAttribArray(gl.positionLocation);
+      gl.vertexAttribPointer(gl.positionLocation, 3, gl.FLOAT, false, 0, 0);
 
-    const up = [0, 1, 0];
-    // Compute the camera's matrix using look at.
-    const camera = m4.lookAt(cameraPosition, cameraTarget, up);
+      // lets just make them red for now
+      const red = new Float32Array([0.0, 0.0, 1.0, 1.0])
+      // Setup the color uniform that will be shared across all triangles
+      gl.uniform4fv(gl.colorLocation, red);
 
-    // Make a view matrix from the camera matrix.
-    const view = m4.inverse(camera);
+      // Draw the triangles to the screen
+      gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-    const sharedUniforms = {
-      u_lightDirection: m4.normalize([-1, 3, 5]),
-      u_view: view,
-      u_projection: projection,
-    };
-
-    gl.useProgram(meshProgramInfo.program);
-
-    // calls gl.uniform
- //   webglUtils.setUniforms(meshProgramInfo, sharedUniforms);
-
-    // calls gl.bindBuffer, gl.enableVertexAttribArray, gl.vertexAttribPointer
-//    webglUtils.setBuffersAndAttributes(gl, meshProgramInfo, bufferInfo);
-
-    // calls gl.uniform
-//    webglUtils.setUniforms(meshProgramInfo, {
-//      u_world: m4.yRotation(time),
-//      u_diffuse: [1, 0.7, 0.5, 1],
-//    });
-//
-//    // calls gl.drawArrays or gl.drawElements
-//    webglUtils.drawBufferInfo(gl, bufferInfo);
 
     requestAnimationFrame(render);
   }
