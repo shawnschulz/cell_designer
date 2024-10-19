@@ -101,42 +101,22 @@ function getIndices(array)
     } 
     return ret
 }
-
-async function main() {
-  // Get A WebGL context
-  /** @type {HTMLCanvasElement} */
-    const canvas = document.getElementById("canvas");
-
-  const gl = canvas.getContext("webgl");
-  if (!gl) {
-    return;
-  }
-
-
-  // compiles and links the shaders, looks up attribute and uniform locations
- // const meshProgramInfo = webglUtils.createProgramInfo(gl, [vs, fs]);
-  const response = await fetch('./data/cells/stromal_like.obj');  
-  const text = await response.text();
-  const data = parseOBJ(text);
-
-  // Because data is just named arrays like this
-  //
-  // {
-  //   position: [...],
-  //   texcoord: [...],
-  //   normal: [...],
-  // }
-  //
-  // and because those names match the attributes in our vertex
-  // shader we can pass it directly into `createBufferInfoFromArrays`
-  // from the article "less code more fun".
-
-  // create a buffer for each array by calling
-  // gl.createBuffer, gl.bindBuffer, gl.bufferData
-  //const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
-  
-  // position buffer
   function createBuffer(gl, data) {
+      // Because data is just named arrays like this
+      //
+          // {
+              //   position: [...],
+              //   texcoord: [...],
+              //   normal: [...],
+              // }
+      //
+          // and because those names match the attributes in our vertex
+      // shader we can pass it directly into `createBufferInfoFromArrays`
+      // from the article "less code more fun".
+
+          // create a buffer for each array by calling
+      // gl.createBuffer, gl.bindBuffer, gl.bufferData
+      //const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
       const bin_buffer = gl.createBuffer()
 
       const bin_normal = new Float32Array(data.normal)
@@ -158,6 +138,25 @@ async function main() {
       gl.bindBuffer(gl.ARRAY_BUFFER, pos_buffer)
       gl.bufferData(gl.ARRAY_BUFFER, bin_positions, gl.STATIC_DRAW)
   }
+
+async function main() {
+  // Get A WebGL context
+  /** @type {HTMLCanvasElement} */
+    const canvas = document.getElementById("canvas");
+
+  const gl = canvas.getContext("webgl");
+  if (!gl) {
+    return;
+  }
+
+
+  // compiles and links the shaders, looks up attribute and uniform locations
+ // const meshProgramInfo = webglUtils.createProgramInfo(gl, [vs, fs]);
+  const response = await fetch('./data/cells/stromal_like.obj');  
+  const text = await response.text();
+  const data = parseOBJ(text);
+
+  
   createBuffer(gl, data);
 
   const cameraTarget = [0, 0, 0];
@@ -171,9 +170,6 @@ async function main() {
 
   function render(time) {
     time *= 0.001;  // convert to seconds
-
-//    webglUtils.resizeCanvasToDisplaySize(gl.canvas);
-
       // non-dynamic canvas size
     gl.canvas.width = window.innerWidth;
     gl.canvas.height = window.innerHeight;
@@ -186,9 +182,12 @@ async function main() {
       gl.vertexAttribPointer(gl.positionLocation, 3, gl.FLOAT, false, 0, 0);
 
       // lets just make them red for now
-      const red = new Float32Array([0.0, 0.0, 1.0, 1.0])
+      const red = new Float32Array([0.0, 0.0, 1.0, 1.0]);
       // Setup the color uniform that will be shared across all triangles
       gl.uniform4fv(gl.colorLocation, red);
+
+      // DEBUG
+      let test = gl.getParameter(gl.ARRAY_BUFFER_BINDING);
 
       // Draw the triangles to the screen
       gl.drawArrays(gl.TRIANGLES, 0, 6);
