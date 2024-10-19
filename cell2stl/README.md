@@ -1,8 +1,50 @@
-# cell2stl
+# React + TypeScript + Vite
 
-This subfolder should contain a C++ or python program to take 1. a cell type and produce a crude 3d model of what that cell type looks like for rendering on the webstie and 2. some number of cell surface proteins and transcription factors and create a 3d model of what the cell surface would look like, with weighted 3d arrows that point to and from any relevant cs proteins and tf proteins. 
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-# Order of To-dos (hopefully broken down so you can downsize the project if necessary)
-1. Simply cell type -> .stl 3d model of that cell type. This should be more simple, we can start by only producing the 10 most populous cell types from tabula sapiens.
-2. Use PDB to take known cell surface protein and transcription factors and get the .stl 3d model for those proteins. Then, try to render it such that those proteins are embedded in a reasonable approximation of what a cell surface and internal part of a cell would look like. Finally, for extra super duper bonus points, make zooming out dynamically switch rendering view from a zoomed in high resolution of those proteins to an approximation of the proportion of cell surface and internal part made up by those proteins, with some color coding. Start with just 5 or 10 proteins each and go more complex from there.
-3. Weighted 3d arrows while zoomed in. 
+Currently, two official plugins are available:
+
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Expanding the ESLint configuration
+
+If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+
+- Configure the top-level `parserOptions` property like this:
+
+```js
+export default tseslint.config({
+  languageOptions: {
+    // other options...
+    parserOptions: {
+      project: ['./tsconfig.node.json', './tsconfig.app.json'],
+      tsconfigRootDir: import.meta.dirname,
+    },
+  },
+})
+```
+
+- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
+- Optionally add `...tseslint.configs.stylisticTypeChecked`
+- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+
+```js
+// eslint.config.js
+import react from 'eslint-plugin-react'
+
+export default tseslint.config({
+  // Set the react version
+  settings: { react: { version: '18.3' } },
+  plugins: {
+    // Add the react plugin
+    react,
+  },
+  rules: {
+    // other rules...
+    // Enable its recommended rules
+    ...react.configs.recommended.rules,
+    ...react.configs['jsx-runtime'].rules,
+  },
+})
+```
