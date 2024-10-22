@@ -1,6 +1,6 @@
 #include <vector>
 #include <array>
-#include <math>
+#include <cmath>
 #include <iostream>
 
 // Library is very simple, no contiguous arrays (transpose always copies and
@@ -129,7 +129,7 @@ mat multiply(mat const & mat1, mat const & mat2) {
     if (mat1_rows != mat2_cols) {
         std::cerr << "Rows of mat1 and cols of mat2 don't match" << std::endl;
     }
-    mat out_mat = allocate_array(mat2_cols, mat1_rows, fill_zero = true);
+    mat out_mat = allocate_array(mat2_cols, mat1_rows, true);
     for (int col = 0; col < mat2_cols; col++) {
         for (int i = 0; i < mat1_rows; i++) {
             for (int j = 0; j < mat1_cols; j++) {
