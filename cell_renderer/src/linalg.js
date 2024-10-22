@@ -120,36 +120,65 @@ export function multiply(mat1, mat2) {
     return out_mat
 }
 
-// For inversion we solve(matrix, I)
-// Computer upper and lower traingular matrices using
-// Gaussian Elimination, 
-// Then solve with LU factorization for the identity matrix
-export function inverse(a) {
-    // Start with getting row echelon form via Gaussian elimination
+export function calc_LU(a) {
+    // For use in solving linear systems and inverting matrices, calc_LU 
+    // in separate function
     const a_rows = a.length
     const a_cols = a[0].length
-    const ident = identity(a_rows, a_cols)
-    const ident_rows = ident.length
-    const ident_cols = ident[0].length
     if ((a_rows < 3) || (a_rows != a_cols)) {
         console.warn("Attempted to solve for either non-square matrix or matrix with a dimension less than 3");
         return null
     }
     // Prob gonna be lots of times you don't wanna mess with input array
-    var row_echelon = structuredClone(a);
+    var U = structuredClone(a);
     var L = identity(a_rows, a_cols);
     for (let j = 0; j < a_cols; j++) {
-        row_echelon[0][j] = a[0][j];
+        U[0][j] = a[0][j];
     }
     for (let i = 1; i < a_rows; i++) {
         for (let next_row = i; next_row < a_rows; next_row++) {
-            let multiplier = row_echelon[next_row][i-1] * Math.sign(a[i-1][i])
+            let multiplier = U[next_row][i-1] * Math.sign(a[i-1][i])
             L[next_row][i-1] = multiplier
             for (let j = i - 1; j < a_cols; j++){
-                row_echelon[next_row][j] = row_echelon[next_row][j] - (row_echelon[i - 1][j] * multiplier);
+                U[next_row][j] = row_echelon[next_row][j] - (row_echelon[i - 1][j] * multiplier);
             }
         }
     }
-    //Now just solve using L and U
-    // Find Z
+    return [L, U];
+}
+
+export function solve_LU(L, U, b) {
+    // Given precalculated L and U, solve for Ax = b where L is the lower 
+    // triangular of A and U is the upper triangular of A.
+    // Alg simply goes column by column in b and solves individually
+    if ((L.length != b.length) || (U.length != b.length)) {
+        console.warn("Supplied matrix of invalid shape to LU solver, returning null");
+        return null
+    }
+    b_rows = b[0].length
+    b_cols = b.length
+    let X = allocate_array(b_rows, b_cols);
+    for (let i = 0; i < b_rows; i++) {
+        for (let j = 0; j < b_cols; j++) {
+            
+        }
+    }
+}
+
+export function solve(a, b) {
+    // A "generic" interface that just calls the LU solver functions
+    let [L, U] = calc_LU(a);
+    let x = solve_LU(L, U, b);
+    return x;
+}
+
+// For inversion we solve(matrix, I)
+// Computer upper and lower traingular matrices using
+// Gaussian Elimination, 
+// Then solve with LU factorization for the identity matrix
+export function inverse(a) {
+    const ident = identity(a_rows, a_cols)
+    let [L, U] = calc_LU(a);
+    let ret = solve_LU(L, U, ident);
+    return ret;
 }
