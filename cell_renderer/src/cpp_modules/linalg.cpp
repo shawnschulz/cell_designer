@@ -86,6 +86,7 @@ mat transpose(mat const & matrix) {
             matrixT[j][i] = matrix[i][j];
         }
     }
+    return matrixT;
 }
 
 template<typename T>
