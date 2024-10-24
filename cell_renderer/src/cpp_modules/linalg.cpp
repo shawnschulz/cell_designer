@@ -2,6 +2,7 @@
 #include <array>
 #include <cmath>
 #include <iostream>
+#include <iomanip>
 
 // Library is very simple, no contiguous arrays (transpose always copies and
 // is expensive), no sparse matrices (sparse data will be inefficient)
@@ -223,4 +224,50 @@ mat inverse(mat const & a) {
     std::array<mat, 2> LU = calc_LU(a);
     mat ret = solve_LU(LU[0], LU[1], ident);
     return ret;
+}
+
+void print_mat(mat const & mat, int precision = 2, int width = 5) 
+{
+    //idk we change defaults for the width that feel right
+int column_index;
+    std::cout << std::fixed << std::setprecision(precision); 
+    std::cout << "[";
+    for (int row_index = 0; row_index < mat.size(); row_index++) 
+{
+    if (row_index!= 0) {
+        std::cout << " ";
+    }
+    std::cout << "[";
+    std::cout << std::setw(width);
+    for (int column_index = 0; column_index < mat[0].size(); column_index++) {
+        auto output = mat[row_index][column_index];
+        std::cout  << output; 
+        if (row_index != mat.size() - 1 && column_index != mat[0].size() -1) {
+            std::cout << ", ";
+        }
+        if (row_index > 1000) {
+    std::cout << "...";
+            std::cout << "]]";
+            std::cout << std::endl;
+            return void();
+        }
+    }
+    std::cout << "]";
+    if (row_index  < mat.size()) {
+        std::cout << ",";
+        std::cout << "\n";
+    }
+    }
+std::cout << "]";
+    std::cout << std::endl;
+return void();
+}
+
+// This is purely for testing, remove the main later
+int main() {
+    mat diagonal = identity(4, 4);
+    diagonal = scalarAdd(diagonal, 3);
+    mat inv_diagonal = inverse(diagonal);
+    // Expected output is 1/3 along the diagonal
+    print_mat(inv_diagonal);
 }
