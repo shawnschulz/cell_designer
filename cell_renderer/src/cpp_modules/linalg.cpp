@@ -190,18 +190,33 @@ mat solve_LU(mat const & L, mat const & U, mat const & b) {
     }
     int b_rows = b[0].size();
     int b_cols = b.size();
-    mat X = allocate_array(b_rows, b_cols);
+    mat Z = allocate_array(b_rows, b_cols);
     for (int initial = 0; initial < b_cols; initial++) {
         float z = b[0][initial];
-        X[0][initial] = z;
+        Z[0][initial] = z;
     }
     for (int bcoli = 0; bcoli < b_cols; bcoli++) {
         for (int i = 1; i < b_rows; i++) {
             float zij = b[i][bcoli]; 
             for (int j = 0; j < i; j++) {
-                zij -= X[i-1][bcoli] * U[i-1][j];
+                zij -= L[i-1][bcoli] * L[i-1][j];
             }
-            X[i][bcoli] = zij;
+            Z[i][bcoli] = zij;
+        }
+    }
+    // Do the same thing but its for the upper and substituting Z for b
+    mat X = allocate_array(b_rows, b_cols);
+    for (int initial = 0; initial < b_cols; initial++) {
+        float x_bottom = Z[b_rows - 1][initial] / U[b_rows - 1][b_cols - 1];
+        X[b_rows - 1][initial] = x_bottom;
+    }
+    for (int bcoli = b_cols - 2; bcoli > 0; bcoli--) {
+        for (int i = 1; i < b_rows; i++) {
+            float xij = b[i][bcoli]; 
+            for (int j = 0; j < i; j++) {
+                xij -= X[i-1][bcoli] * U[i-1][j];
+            }
+            X[i][bcoli] = xij;
         }
     }
     return X;
