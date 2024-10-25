@@ -199,7 +199,7 @@ mat solve_LU(mat const & L, mat const & U, mat const & b) {
         for (int i = 1; i < b_rows; i++) {
             float zij = b[i][bcoli]; 
             for (int j = 0; j < i; j++) {
-                zij -= L[i-1][bcoli] * L[i-1][j];
+                zij -= b[i-1][bcoli] * L[i-1][j];
             }
             Z[i][bcoli] = zij;
         }
@@ -210,13 +210,15 @@ mat solve_LU(mat const & L, mat const & U, mat const & b) {
         float x_bottom = Z[b_rows - 1][initial] / U[b_rows - 1][b_cols - 1];
         X[b_rows - 1][initial] = x_bottom;
     }
-    for (int bcoli = b_cols - 2; bcoli > 0; bcoli--) {
-        for (int i = 1; i < b_rows; i++) {
-            float xij = b[i][bcoli]; 
-            for (int j = 0; j < i; j++) {
-                xij -= X[i-1][bcoli] * U[i-1][j];
+    // We basically have to go through everything backwards
+    for (int browi = b_rows - 2; browi > 0; browi--) {
+        // Go from end column up to whatever row you're on
+        for (int j = b_cols - 1; j >= browi; j--) {
+            float xij = Z[browi][j]; 
+            for (int i = j; i >= browi; i--) {
+                xij -= X[i][j] * U[i-1][j];
             }
-            X[i][bcoli] = xij;
+            X[browi][j] = xij;
         }
     }
     return X;
