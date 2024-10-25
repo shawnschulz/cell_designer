@@ -284,7 +284,7 @@ return void();
 // This is purely for testing, remove the main later
 int main() {
     mat diagonal = identity(4, 4);
-    diagonal = scalarAdd(diagonal, 3);
+    diagonal = scalarMultiply(diagonal, 3);
     mat inv_diagonal = inverse(diagonal);
     // Expected output is 1/3 along the diagonal
     print_mat(inv_diagonal);
