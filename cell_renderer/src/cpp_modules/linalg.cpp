@@ -143,6 +143,10 @@ mat multiply(mat const & mat1, mat const & mat2) {
 }
 
  std::array<mat, 2> calc_LU(mat const & a) {
+     //  NOTE: IT would be really good to throw an error or warning here if L or U is
+     //  NOT an traingular matrix (not zeroes above or below), this is expected
+     //  if the inputs are not linear independent, you could even create a function
+     //  that checks for whether rank doesn't match quickly doing this (or implement SVD at some point to calculate rank)
     // For use in solving linear systems and inverting matrices, calc_LU 
     // in separate function
     int a_rows = a.size();
