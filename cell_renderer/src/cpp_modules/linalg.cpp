@@ -289,6 +289,7 @@ return void();
 int main() {
     mat diagonal = identity(4, 4);
     diagonal = scalarMultiply(diagonal, 3);
+    mat g4g = convert_contiguous(std::vector<double> {1,1,1,4,3,-1,3,5,3}, std::array<int, 2> {3,3}))
     mat inv_diagonal = inverse(diagonal);
     // Expected output is 1/3 along the diagonal
     print_mat(inv_diagonal);
