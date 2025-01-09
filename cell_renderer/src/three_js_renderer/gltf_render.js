@@ -71,7 +71,8 @@ function placeOnSurface(gltf_object, surface_receptor_gltf_object) {
     // Take a source object, get a random set of vertices, then place
     // the surface receptor gltf_object at the vertex
     scene.add( surface_receptor_gltf_object );
-    var verticies = gltf_object.geometry.attributes.position.array
+    var verticies = scene.children[0].geometry.attributes.position
+    // var verticies = gltf_object.geometry.position.array
     const vertex = (verticies[0], verticies[1], verticies[2]);
     // test by just placing something at the first vertex
 
