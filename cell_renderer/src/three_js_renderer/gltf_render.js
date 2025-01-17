@@ -67,36 +67,55 @@ loader.load(
 //const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
 //const cube = new THREE.Mesh( geometry, material ); 
 
+function randrange(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
-function placeOnSurface(gltf_object, protein_render_level=100, receptor_abundance_precent, receptor_name, receptor_color) {
+function randfloat(min, max, precision=1000) {
+}
+
+// Generates a position randomly at the inputted distance away from
+// 0,0,0. This is a uniform random sample with replacement, aka white noise
+// placement. Works for a demo, but may want to do a blue noise or gaussian
+// noise pattern since white noise distributions probably don't mimic 
+// cellular protein spatial distributions. Could also add an option for
+// some kind of ML inferred protein placement
+function random_placement(distance, min_distance=0, precision = 1000) {
+    let ret = [0, 0, 0]
+    let axes = [0, 1, 2]
+    let remaining_distance = distance;
+    for (let i = 0; i < 2; i++) {
+        // Randomly choose x, y, or z 
+        const index = Math.floor(Math.random() * axes.length)
+        const axis = axes[index];
+        // generate number between sqrt(0) and sqrt(remaining distance)
+        const max = Math.floor(distance * precision)
+        // This doesn't really make any sense for  if min_distance != 0 
+        const dist = randrange(min_distance, max) / precision
+        ret[axis] = dist
+        axes.splice(index, 1)
+        remaining_distance = distance - dist
+    }
+    return ret
+}
+
+function placeOnSurface(gltf_object, protein_render_level=50, receptor_abundance_precent, receptor_name, receptor_color) {
     // Take a source object, get a random set of vertices, then place
     // the surface receptor gltf_object at the vertex
     // Can go with this for now, however if our render targets become more complex
     // may want to consider using threejs's InstancedMesh class instead of the default Mesh
-    const geometry = new THREE.BoxGeometry( 1, 1, 1 ); 
-    const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
-    const cube = new THREE.Mesh( geometry, material ); 
-    scene.add( cube );
-    cube.position.set(1.62,1.62,1.62);
-    cube.scale.set(0.25,0.25,0.25);
-    // How do we access the geomtery of this object?
-    var object = scene.getObjectByName( "stromal_cell" );
-    const positionAttribute = object.geometry.getAttribute('position');
-    const vertex = new THREE.Vector3();
-    // var verticies = gltf_object.geometry.position.array
-    for ( let vertexIndex = 0; vertexIndex < positionAttribute.count; vertexIndex ++ ) {
-        vertex.fromBufferAttribute( positionAttribute, vertexIndex );
+    for (let i = 0; i < Math.floor(protein_render_level * receptor_abundance_precent); i++) {
+        const geometry = new THREE.BoxGeometry( 1, 1, 1 ); 
+        const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
+        const cube = new THREE.Mesh( geometry, material ); 
+        scene.add( cube );
+        const protein_position = random_placement(distance = 2.806)
+        cube.position.set(1.62,1.62,1.62);
+        cube.scale.set(0.25,0.25,0.25);
+
     }
-    // test by just placing something at the first vertex
-
-    // Want the world position of the vertex
-    gltf_object.localToWorld(vertex);
-    cube.position = vertex;
-
-    // Math.random()
 
 }
-
 
 // Rendering loop
 function animate() {
