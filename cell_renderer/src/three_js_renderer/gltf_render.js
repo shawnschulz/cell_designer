@@ -31,16 +31,30 @@ controls.update();
 
 // GLTF Loader
 const loader = new GLTFLoader();
+
+// Trying this promise thing to properly get the geometry
+const promise = loader.loadAsync('./data/cells/stromal_like.glb');
 let model = new THREE.Object3D();
 
-loader.load(
-    './data/cells/stromal_like.glb', (gltf) => {
+promise.then( function( geometry ) {
         model = gltf.scene;
-        model.name = 'model';
+        model.name = 'stromal_cell';
         scene.add(model);
         model.position.set(0,0,0);
-    }
-);
+}).catch(failureCallback);
+
+function failureCallback() {
+    console.log("Failed to load .glb file")
+}
+
+//loader.load(
+//    './data/cells/stromal_like.glb', (gltf) => {
+//        model = gltf.scene;
+//        model.name = 'stromal_cell';
+//        scene.add(model);
+//        model.position.set(0,0,0);
+//    }
+//);
 
 //loader.load(
 //    // Resource URL - replace with your GLTF file path
@@ -70,10 +84,12 @@ const cube = new THREE.Mesh( geometry, material );
 function placeOnSurface(gltf_object, surface_receptor_gltf_object) {
     // Take a source object, get a random set of vertices, then place
     // the surface receptor gltf_object at the vertex
-    scene.add( surface_receptor_gltf_object );
-    var verticies = scene.children[0].geometry.attributes.position
+    const positionAttribute = gltf_object.geometry.getAttribute('position');
+    const vertex = new THREE.Vector3();
     // var verticies = gltf_object.geometry.position.array
-    const vertex = (verticies[0], verticies[1], verticies[2]);
+    for ( let vertexIndex = 0; vertexIndex < positionAttribute.count; vertexIndex ++ ) {
+        vertex.fromBufferAttribute( positionAttribute, vertexIndex );
+    }
     // test by just placing something at the first vertex
 
     // Want the world position of the vertex
@@ -95,7 +111,8 @@ function animate() {
     renderer.render(scene, camera);
 }
 animate();
-placeOnSurface(model, cube);
+const gltf_object = scene.getObjectByName( "stromal_cell" );
+placeOnSurface(gltf_object, cube);
 
 function getProteins() {
     // Should do an API request to the backend to get the proteins
