@@ -31,30 +31,16 @@ controls.update();
 
 // GLTF Loader
 const loader = new GLTFLoader();
-
-// Trying this promise thing to properly get the geometry
-const promise = loader.loadAsync('./data/cells/stromal_like.glb');
 let model = new THREE.Object3D();
 
-promise.then( function( geometry ) {
+loader.load(
+    './data/cells/stromal_like.glb', (gltf) => {
         model = gltf.scene;
         model.name = 'stromal_cell';
         scene.add(model);
         model.position.set(0,0,0);
-}).catch(failureCallback);
-
-function failureCallback() {
-    console.log("Failed to load .glb file")
-}
-
-//loader.load(
-//    './data/cells/stromal_like.glb', (gltf) => {
-//        model = gltf.scene;
-//        model.name = 'stromal_cell';
-//        scene.add(model);
-//        model.position.set(0,0,0);
-//    }
-//);
+    }
+);
 
 //loader.load(
 //    // Resource URL - replace with your GLTF file path
@@ -76,15 +62,26 @@ function failureCallback() {
 //    }
 //);
 
-const geometry = new THREE.BoxGeometry( 1, 1, 1 ); 
-const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
-const cube = new THREE.Mesh( geometry, material ); 
+// Make 3 different colored cubes for the demo
+//const geometry = new THREE.BoxGeometry( 1, 1, 1 ); 
+//const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
+//const cube = new THREE.Mesh( geometry, material ); 
 
 
-function placeOnSurface(gltf_object, surface_receptor_gltf_object) {
+function placeOnSurface(gltf_object, protein_render_level=100, receptor_abundance_precent, receptor_name, receptor_color) {
     // Take a source object, get a random set of vertices, then place
     // the surface receptor gltf_object at the vertex
-    const positionAttribute = gltf_object.geometry.getAttribute('position');
+    // Can go with this for now, however if our render targets become more complex
+    // may want to consider using threejs's InstancedMesh class instead of the default Mesh
+    const geometry = new THREE.BoxGeometry( 1, 1, 1 ); 
+    const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
+    const cube = new THREE.Mesh( geometry, material ); 
+    scene.add( cube );
+    cube.position.set(1.62,1.62,1.62);
+    cube.scale.set(0.25,0.25,0.25);
+    // How do we access the geomtery of this object?
+    var object = scene.getObjectByName( "stromal_cell" );
+    const positionAttribute = object.geometry.getAttribute('position');
     const vertex = new THREE.Vector3();
     // var verticies = gltf_object.geometry.position.array
     for ( let vertexIndex = 0; vertexIndex < positionAttribute.count; vertexIndex ++ ) {
@@ -94,7 +91,7 @@ function placeOnSurface(gltf_object, surface_receptor_gltf_object) {
 
     // Want the world position of the vertex
     gltf_object.localToWorld(vertex);
-    surface_receptor_gltf_object.position = vertex;
+    cube.position = vertex;
 
     // Math.random()
 
@@ -112,7 +109,7 @@ function animate() {
 }
 animate();
 const gltf_object = scene.getObjectByName( "stromal_cell" );
-placeOnSurface(gltf_object, cube);
+placeOnSurface(gltf_object);
 
 function getProteins() {
     // Should do an API request to the backend to get the proteins
