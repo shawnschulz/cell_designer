@@ -83,34 +83,35 @@ function randfloat(min, max, precision=1000) {
 function random_placement(distance, min_distance=0, precision = 1000) {
     let ret = [0, 0, 0]
     let axes = [0, 1, 2]
-    let remaining_distance = distance;
+    // Using squares cuz idk
+    let remaining_distance_square = distance * distance;
     for (let i = 0; i < 2; i++) {
         // Randomly choose x, y, or z 
         const index = Math.floor(Math.random() * axes.length)
         const axis = axes[index];
         // generate number between sqrt(0) and sqrt(remaining distance)
-        const max = Math.floor(distance * precision)
+        const max = Math.floor(remaining_distance_square * precision)
         // This doesn't really make any sense for  if min_distance != 0 
-        const dist = randrange(min_distance, max) / precision
-        ret[axis] = dist
+        const square_component = randrange(min_distance, max) / precision
+        ret[axis] = Math.sqrt(square_component) 
         axes.splice(index, 1)
-        remaining_distance = distance - dist
+        remaining_distance_square = remaining_distance_square - square_component
     }
     return ret
 }
 
-function placeOnSurface(gltf_object, protein_render_level=50, receptor_abundance_precent, receptor_name, receptor_color) {
+function placeOnSurface(gltf_object, protein_render_level=100, receptor_abundance_precent=0.5, receptor_name, receptor_color=0x00ff00) {
     // Take a source object, get a random set of vertices, then place
     // the surface receptor gltf_object at the vertex
     // Can go with this for now, however if our render targets become more complex
     // may want to consider using threejs's InstancedMesh class instead of the default Mesh
     for (let i = 0; i < Math.floor(protein_render_level * receptor_abundance_precent); i++) {
         const geometry = new THREE.BoxGeometry( 1, 1, 1 ); 
-        const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
+        const material = new THREE.MeshBasicMaterial( {color: receptor_color} ); 
         const cube = new THREE.Mesh( geometry, material ); 
         scene.add( cube );
-        const protein_position = random_placement(distance = 2.806)
-        cube.position.set(1.62,1.62,1.62);
+        const protein_position = random_placement(2.806)
+        cube.position.set(protein_position[0], protein_position[1], protein_position[2]);
         cube.scale.set(0.25,0.25,0.25);
 
     }
