@@ -85,7 +85,7 @@ function random_placement(distance, min_distance=0, precision = 1000) {
     let axes = [0, 1, 2]
     // Using squares cuz idk
     let remaining_distance_square = distance * distance;
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i <= 2; i++) {
         // Randomly choose x, y, or z 
         const index = Math.floor(Math.random() * axes.length)
         const axis = axes[index];
@@ -93,8 +93,14 @@ function random_placement(distance, min_distance=0, precision = 1000) {
         const max = Math.floor(remaining_distance_square * precision)
         // This doesn't really make any sense for  if min_distance != 0 
         const square_component = randrange(min_distance, max) / precision
-        ret[axis] = Math.sqrt(square_component) 
-        axes.splice(index, 1)
+        if (i < 2) {
+            ret[axis] = Math.sqrt(square_component) 
+            axes.splice(index, 1)
+        }
+        else {
+            ret[2] = Math.sqrt(remaining_distance_square)
+            return ret
+        }
         remaining_distance_square = remaining_distance_square - square_component
     }
     return ret
