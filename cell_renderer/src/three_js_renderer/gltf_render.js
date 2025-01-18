@@ -98,7 +98,7 @@ function random_placement(distance, min_distance=0, precision = 1000) {
             axes.splice(index, 1)
         }
         else {
-            ret[2] = Math.sqrt(remaining_distance_square)
+            ret[axes[index]] = Math.sqrt(remaining_distance_square)
             return ret
         }
         remaining_distance_square = remaining_distance_square - square_component
