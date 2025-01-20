@@ -80,7 +80,7 @@ function randfloat(min, max, precision=1000) {
 // noise pattern since white noise distributions probably don't mimic 
 // cellular protein spatial distributions. Could also add an option for
 // some kind of ML inferred protein placement
-function random_placement(distance, min_distance=0, precision = 1000) {
+function random_surface_placement(distance, min_distance=0, precision = 1000) {
     let ret = [0, 0, 0]
     let axes = [0, 1, 2]
     // Using squares cuz idk
@@ -117,22 +117,22 @@ function random_placement(distance, min_distance=0, precision = 1000) {
     return ret
 }
 
-function placeOnSurface(gltf_object, protein_render_level=100, receptor_abundance_precent=0.5, receptor_name, receptor_color=0x00ff00) {
+// TODO: we need a color mapping (and ideally also seperate shapes) for each surface receptor
+function placeOnSurface(receptor_color=0x00ff00, receptor_shape, protein_render_level=100, receptor_abundance_precent=0.5, receptor_name) {
     // Take a source object, get a random set of vertices, then place
     // the surface receptor gltf_object at the vertex
     // Can go with this for now, however if our render targets become more complex
     // may want to consider using threejs's InstancedMesh class instead of the default Mesh
     for (let i = 0; i < Math.floor(protein_render_level * receptor_abundance_precent); i++) {
-        const geometry = new THREE.BoxGeometry( 1, 1, 1 ); 
+        const geometry = new THREE.ConeGeometry( 0.5, 1, 32 ); 
         const material = new THREE.MeshBasicMaterial( {color: receptor_color} ); 
         const cube = new THREE.Mesh( geometry, material ); 
         scene.add( cube );
-        const protein_position = random_placement(2.806)
+        const protein_position = random_surface_placement(2.806)
         cube.position.set(protein_position[0], protein_position[1], protein_position[2]);
         cube.scale.set(0.25,0.25,0.25);
 
     }
-
 }
 
 // Rendering loop
@@ -147,6 +147,8 @@ function animate() {
 animate();
 const gltf_object = scene.getObjectByName( "stromal_cell" );
 placeOnSurface(gltf_object);
+placeOnSurface(0xFF0000)
+placeOnSurface(0x0000FF)
 
 function getProteins() {
     // Should do an API request to the backend to get the proteins
