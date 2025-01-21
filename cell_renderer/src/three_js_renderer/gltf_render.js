@@ -124,7 +124,7 @@ function placeOnSurface(receptor_color=0x00ff00, receptor_shape, protein_render_
     // Can go with this for now, however if our render targets become more complex
     // may want to consider using threejs's InstancedMesh class instead of the default Mesh
     for (let i = 0; i < Math.floor(protein_render_level * receptor_abundance_precent); i++) {
-        const geometry = new THREE.ConeGeometry( 0.5, 1, 32 ); 
+        const geometry = new THREE.SphereGeometry( 0.5, 32, 16 ); 
         const material = new THREE.MeshBasicMaterial( {color: receptor_color} ); 
         const cube = new THREE.Mesh( geometry, material ); 
         scene.add( cube );
