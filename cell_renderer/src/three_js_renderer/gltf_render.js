@@ -1,5 +1,6 @@
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GUI } from 'dat.gui'
 import * as THREE from 'three';
 
 const scene = new THREE.Scene();
@@ -32,6 +33,7 @@ controls.update();
 // GLTF Loader
 const loader = new GLTFLoader();
 let model = new THREE.Object3D();
+
 
 loader.load(
     './data/cells/stromal_like.glb', (gltf) => {
@@ -118,7 +120,7 @@ function random_surface_placement(distance, min_distance=0, precision = 1000) {
 }
 
 // TODO: we need a color mapping (and ideally also seperate shapes) for each surface receptor
-function placeOnSurface(receptor_color=0x00ff00, receptor_shape, protein_render_level=100, receptor_abundance_precent=0.5, receptor_name) {
+function placeOnSurface(receptor_color=0x1E88E5, receptor_shape, protein_render_level=100, receptor_abundance_precent=0.5, receptor_name) {
     // Take a source object, get a random set of vertices, then place
     // the surface receptor gltf_object at the vertex
     // Can go with this for now, however if our render targets become more complex
@@ -146,9 +148,16 @@ function animate() {
 }
 animate();
 const gltf_object = scene.getObjectByName( "stromal_cell" );
+let color2 = 0xFF0000;
+const gui = new GUI();
+const cellsFolder = gui.addFolder('Cells')
+const inferenceFolder = gui.addFolder('Inference')
+const colorFolder = gui.addFolder('Colors');
+const receptorDensity = gui.addFolder('Receptor Rendering')
+//colorFolder.add(color2, 'color')
 placeOnSurface(gltf_object);
-placeOnSurface(0xFF0000)
-placeOnSurface(0x0000FF)
+placeOnSurface(0xFFC107)
+placeOnSurface(0x004D40)
 
 function getProteins() {
     // Should do an API request to the backend to get the proteins
