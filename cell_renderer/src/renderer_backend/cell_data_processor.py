@@ -1,4 +1,6 @@
 import scanpy as sc
+import sqlite3
+import pandas as pd 
 
 # For now, just take an input .h5ad file and  output the top 10 most highly variable gene names
 
@@ -24,10 +26,18 @@ def process_h5ad(adata):
         print("Did not detect cell type annotatoins in obs. Warning: please ensure cell type annotations are labeled as 'cell_type' in obs dataframe")
         # Code to infer cell type would go here
     return
-        
 
-def annotate_surface_receptors(adata):
+def run_celltype_inference(embedding, X):
     """
-    Use NCBI gene names to annotate whether genes are surface receptors or not. 
+    Runs celltpye inference for one cell. Should already have the embeding loaded into memory and call a simple 
+    function call to infer the cell type based on the cell info given. Can add more options to this function later
+    """ 
+    pass
+
+def annotate_genes(adata):
+    """
+    Use NCBI gene names to annotate whether genes are surface receptors or not, among other useful annotations.
+    This construts the entire gene SQL database, with primary key as ensembl gene IDs, a different function
+    should be used for accessing the generated db 
     """
     pass
