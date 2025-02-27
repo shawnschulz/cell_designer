@@ -12,6 +12,9 @@ import pandas as pd
 # 5. Need to output that information, probably just in csv for now but eventually add it to a sql DB
 # (note) I think it makes more sense to calculate the color mapping in the renderer rather than do it here, but the cmap should be added to the DB
 
+# Might want to create a new cell_info class? For now can just treat it as a pandas dataframe until we run into limits with 
+# that
+
 def process_h5ad(adata):
     """
     Check if need to do scanpy's highly variable gene calculation, do it if so.
@@ -39,5 +42,13 @@ def annotate_genes(adata):
     Use NCBI gene names to annotate whether genes are surface receptors or not, among other useful annotations.
     This construts the entire gene SQL database, with primary key as ensembl gene IDs, a different function
     should be used for accessing the generated db 
+    """
+    # Should check the sqlite database this generates
+    attribute = sc.queries.biomart_annotations('hsapiens', ['ensembl_gene_id', 'gene_biotype', 'phenotype_description', 'transcript_biotype', 'tmhmm', 'signalp', 'description'], use_cache=True)
+    pass
+
+def update_expression_level(cell_embedding, cell_info):
+    """
+    Updates the expression level of genes in an embedding.
     """
     pass

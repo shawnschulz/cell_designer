@@ -13,7 +13,11 @@ camera.position.z = 5;
 // Renderer setup
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
+
+// This should be a dashboard component
+const li = document.createElement("li")
 document.body.appendChild(renderer.domElement);
+document.body.appendChild(li);
 
 // Lighting
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
@@ -43,31 +47,6 @@ loader.load(
         model.position.set(0,0,0);
     }
 );
-
-//loader.load(
-//    // Resource URL - replace with your GLTF file path
-//    './data/cells/stromal_like.glb',
-//    
-//    // Called when the resource is loaded
-//    function (gltf) {
-//        scene.add(gltf.scene);
-//    },
-//    
-//    // Called while loading is progressing
-//    function (xhr) {
-//        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-//    },
-//    
-//    // Called when loading has errors
-//    function (error) {
-//        console.error('An error happened', error);
-//    }
-//);
-
-// Make 3 different colored cubes for the demo
-//const geometry = new THREE.BoxGeometry( 1, 1, 1 ); 
-//const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} ); 
-//const cube = new THREE.Mesh( geometry, material ); 
 
 function randrange(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
