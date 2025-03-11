@@ -7,16 +7,17 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf0f0f0);
 
 // Camera setup
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+// Can set it to the dimensions of window with window.innerWidth, window.innerHeight
+const camera = new THREE.PerspectiveCamera(75, 1340 / 800, 0.1, 1000);
 camera.position.z = 5;
 
 // Renderer setup
 const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(1340, 800);
 
 // This should be a dashboard component
-const li = document.createElement("li")
 document.body.appendChild(renderer.domElement);
+const li = document.createElement("button")
 document.body.appendChild(li);
 
 // Lighting
