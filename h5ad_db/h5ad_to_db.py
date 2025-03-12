@@ -4,6 +4,8 @@ from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
 import time
 import argparse
+import cudf
+from cuml.cluster import KMeans 
 
 logger = structlog.get_logger(__name__)
 client = QdrantClient(host="localhost", port=6333)
@@ -23,11 +25,32 @@ def setup_argparse():
     
     return parser.parse_args()
 
+# Idea of order here is
+#1. add gene sequences to the h5ad
+#2. add receptor labels
+#3. cluster by gene sequences using CNN + VAE (input dims are 5 x max gene size, 5 being the 4 possible base pairs + a null for if the gene is shorter than max)
+#4. add the labels, visualize by receptor vs non receptor, then label by some like 10 surface 10 nuclear loc 10 exported genes
+#5. rename the labels to the receptor types
+#6. ingest into qdrant db
+#7. make sure you save both the h5ad and qdrant db to disk
+#8. profit, can start by just making a search bar where you can search for cells then add the front end client where you can render them
+#9. Maybe start with loading into vector database?
+
 # Idea here is to add hte gene sequences before adding to the vector database,
 # ideally this should make clustering a breeze and add search functionality
 # both for our receptor classificaiton task and for cell type classification
 # among other parts of the problem space
 def add_gene_sequences_to_h5ad(h5ad):
+    pass
+
+# Add the receptor labels so that after we cluster we can see if we are getting
+# good separation by receptor vs non receptor
+def add_receptor_labels_to_h5ad(h5ad):
+    pass
+
+#Take an adata view and cluster, try RAPIDS kmeans first but if you aren't
+#satisfied with that you can then try a pytorch CNN/ANN based model or something else
+def cluster_receptors_by_gene_sequences(adata_view):
     pass
 
 def create_vector_database(initial_h5ads, db_name="cell_database", vector_size=768):
