@@ -117,6 +117,24 @@ function placeOnSurface(receptor_color=0x1E88E5, receptor_shape, protein_render_
     }
 }
 
+// Eventually want this to do CRUD app stuff to get the users cells, but for now
+// test by fetching a string from 3000 and adding to the controls
+async function get_cell_choices(gui_folder) {
+    // you'll need to change the address in production to a DNS name
+    const url = "http://localhost:3000"
+    try {
+        const response = await fetch(url, {mode: "no-cors"})
+        if (!response.ok) {
+            throw new Error(`Error getting cell information: ${response.status}`)
+        }
+        const result = await response.json();
+        gui_folder.add(result[0])
+    }
+    catch (error) {
+        console.error(error.message)
+    }
+}
+
 // Rendering loop
 function animate() {
     requestAnimationFrame(animate);
@@ -136,8 +154,9 @@ const colorFolder = gui.addFolder('Colors');
 const receptorDensity = gui.addFolder('Receptor Rendering')
 //colorFolder.add(color2, 'color')
 placeOnSurface(gltf_object);
-placeOnSurface(0xFFC107)
-placeOnSurface(0x004D40)
+placeOnSurface(0xFFC107);
+placeOnSurface(0x004D40);
+get_cell_choices(cellsFolder);
 
 function getProteins() {
     // Should do an API request to the backend to get the proteins

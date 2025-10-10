@@ -26,15 +26,16 @@ def setup_argparse():
     return parser.parse_args()
 
 # Idea of order here is
+#6. ingest into qdrant db
+#8. profit, can start by just making a search bar where you can search for cells then add the front end client where you can render them
+#3. would be nice to add python bindings/a library for this using python requests so its easy for researchers to access your vector database
 #1. add gene sequences to the h5ad
 #2. add receptor labels
 #3. cluster by gene sequences using CNN + VAE (input dims are 5 x max gene size, 5 being the 4 possible base pairs + a null for if the gene is shorter than max)
 #4. add the labels, visualize by receptor vs non receptor, then label by some like 10 surface 10 nuclear loc 10 exported genes
 #5. rename the labels to the receptor types
-#6. ingest into qdrant db
+#6. reinsert/recreate qdrant db with the new receptor labels
 #7. make sure you save both the h5ad and qdrant db to disk
-#8. profit, can start by just making a search bar where you can search for cells then add the front end client where you can render them
-#9. Maybe start with loading into vector database?
 
 # Idea here is to add hte gene sequences before adding to the vector database,
 # ideally this should make clustering a breeze and add search functionality
@@ -53,7 +54,7 @@ def add_receptor_labels_to_h5ad(h5ad):
 def cluster_receptors_by_gene_sequences(adata_view):
     pass
 
-def create_vector_database(initial_h5ads, db_name="cell_database", vector_size=768):
+def create_vector_database(initial_h5ads, db_name="cell_database", vector_size=768, client = client):
     logger.info(f"Creating database {db_name} from the following paths: {initial_h5ads}")
     count = 0
     client.create_collection(collection_name=db_name, vectors_config=VectorParams(size=vector_size, distance=Distance.DOT))
@@ -62,6 +63,7 @@ def create_vector_database(initial_h5ads, db_name="cell_database", vector_size=7
         logger.info(f"Path processing: {path}")
         try:
             adata = sc.read_h5ad(path)
+            upsert_vector_db(adata, db_name, vector_size)
         except Exception as e:
             logger.error(f"Reading path: {path} failed, trying next path")
             logger.error(f"{e}")
@@ -74,7 +76,7 @@ def create_vector_database(initial_h5ads, db_name="cell_database", vector_size=7
 # Not really convinced this will work depending on how in-memory is implemented
 # Might need to create a temporary on disk datbase and try using duck db bindings
 # to update the db
-def update_duckdb(h5ads, db_name="cell_database", db_path="db/"):
+def upsert_vector_db(h5ads, db_name="cell_database", vector_size=768):
     for path in h5ads:
         adata = sc.read_h5ad(path)
         new_asql = AnnSQL(adata=adata)
