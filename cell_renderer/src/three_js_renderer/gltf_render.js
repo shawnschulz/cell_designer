@@ -121,14 +121,21 @@ function placeOnSurface(receptor_color=0x1E88E5, receptor_shape, protein_render_
 // test by fetching a string from 3000 and adding to the controls
 async function get_cell_choices(gui_folder) {
     // you'll need to change the address in production to a DNS name
-    const url = "http://localhost:3000"
+    const url = "http://localhost:3000/list_cells"
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
     try {
-        const response = await fetch(url, {mode: "no-cors"})
+        const response = fetch(url, {
+            method: 'GET',
+            mode: 'no-cors',
+            headers: myHeaders,
+            })
+            ;
         if (!response.ok) {
             throw new Error(`Error getting cell information: ${response.status}`)
         }
         const result = await response.json();
-        gui_folder.add(result[0])
+        gui_folder.add(result[0]['name'])
     }
     catch (error) {
         console.error(error.message)
