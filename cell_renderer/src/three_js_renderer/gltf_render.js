@@ -1,4 +1,5 @@
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import React, { useEffect, useRef, useState } from 'react';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'dat.gui'
 import * as THREE from 'three';
@@ -28,6 +29,7 @@ const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
 directionalLight.position.set(0, 1, 0);
 scene.add(directionalLight);
 
+
 // Orbit Controls
 const controls = new OrbitControls( camera, renderer.domElement );
 
@@ -39,6 +41,17 @@ controls.update();
 const loader = new GLTFLoader();
 let model = new THREE.Object3D();
 
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+
+// Mouse move handler
+const onMouseMove = (e) => {
+    const rect = renderer.domElement.getBoundingClientRect();
+    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+};
+
+renderer.domElement.addEventListener('mousemove', onMouseMove);
 
 loader.load(
     './data/cells/stromal_like.glb', (gltf) => {
@@ -141,18 +154,40 @@ async function get_cell_choices(gui_folder) {
         console.error(error.message)
     }
 }
-
+const gltf_object = scene.getObjectByName( "stromal_cell" );
+//placeOnSurface(gltf_object);
+//placeOnSurface(0xFFC107);
+//placeOnSurface(0x004D40);
+let objects = [placeOnSurface(gltf_object), placeOnSurface(0xFFC107), placeOnSurface(0x004D40)]
 // Rendering loop
-function animate() {
+function animate(objects) {
     requestAnimationFrame(animate);
 
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObjects(objects);
+
+//    objects.forEach(obj => {
+//            obj.material.emissive.setHex(0x000000);
+//        });
+
+    for (let i = 0; i < objects.length; i++) {
+        objects[i].material.emissive.setHex(0x000000);
+    }
+
+    // Highlight intersected object
+      if (intersects.length > 0) {
+        const intersected = intersects[0].object;
+        intersected.material.emissive.setHex(0x555555);
+//        setHoveredObject(intersected.userData);
+      } else {
+ //       setHoveredObject(null);
+      }
 	// required if controls.enableDamping or controls.autoRotate are set to true
 	controls.update();
 
     renderer.render(scene, camera);
 }
-animate();
-const gltf_object = scene.getObjectByName( "stromal_cell" );
+animate(objects);
 let color2 = 0xFF0000;
 const gui = new GUI();
 const cellsFolder = gui.addFolder('Cells')
@@ -160,9 +195,6 @@ const inferenceFolder = gui.addFolder('Inference')
 const colorFolder = gui.addFolder('Colors');
 const receptorDensity = gui.addFolder('Receptor Rendering')
 //colorFolder.add(color2, 'color')
-placeOnSurface(gltf_object);
-placeOnSurface(0xFFC107);
-placeOnSurface(0x004D40);
 get_cell_choices(cellsFolder);
 
 function getProteins() {
@@ -189,3 +221,12 @@ window.addEventListener('resize', () => {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
 });
+
+//window.addEventListener ("mousemove",( event ) => {
+//     var vector = new THREE.Vector3();
+//     pointer.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+//     pointer.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+//     raycaster.set( camera.position, vector.sub( camera.position
+//     ).normalize() );
+//    console.log("Mouse move detected");
+//     }
